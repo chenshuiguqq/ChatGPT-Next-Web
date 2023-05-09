@@ -361,10 +361,9 @@ export function Settings() {
             ></InputRange>
           </ListItem>
 
-          {/* <ListItem
+          <ListItem
             title={Locale.Settings.SendPreviewBubble.Title}
             subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
-            
           >
             <input
               type="checkbox"
@@ -376,9 +375,9 @@ export function Settings() {
                 )
               }
             ></input>
-          </ListItem> */}
+          </ListItem>
 
-          {/* <ListItem
+          <ListItem
             title={Locale.Settings.Mask.Title}
             subTitle={Locale.Settings.Mask.SubTitle}
           >
@@ -393,7 +392,7 @@ export function Settings() {
                 )
               }
             ></input>
-          </ListItem> */}
+          </ListItem>
         </List>
 
         <List>
