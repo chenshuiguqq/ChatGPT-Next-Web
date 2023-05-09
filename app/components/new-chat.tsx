@@ -136,7 +136,7 @@ export function NewChat() {
             text={Locale.NewChat.NotShow}
             onClick={() => {
               if (confirm(Locale.NewChat.ConfirmNoShow)) {
-                startChat();
+                // startChat();
                 config.update(
                   (config) => (config.dontShowMaskSplashScreen = true),
                 );
