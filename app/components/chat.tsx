@@ -642,7 +642,10 @@ export function Chat() {
               onClick={() => navigate(Path.Home)}
             />
           </div>
-          <div className="window-action-button">
+          <div
+            className="window-action-button"
+            style={{ visibility: "hidden" }}
+          >
             <IconButton
               icon={<RenameIcon />}
               bordered

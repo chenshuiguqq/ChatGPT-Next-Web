@@ -208,7 +208,7 @@ export function Settings() {
   const updateStore = useUpdateStore();
   const [checkingUpdate, setCheckingUpdate] = useState(false);
 
-  const currentVersion = "2.1.1"; //updateStore.version;
+  const currentVersion = "1.0"; //updateStore.version;
   const remoteId = formatVersionDate(updateStore.remoteVersion);
   const hasNewVersion = false; //currentVersion !== remoteId;
 
