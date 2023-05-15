@@ -642,16 +642,16 @@ export function Chat() {
               onClick={() => navigate(Path.Home)}
             />
           </div>
-          <div
+          {/* <div
             className="window-action-button"
-            // style={{ visibility: "hidden" }}
+            style={{ visibility: "hidden" }}
           >
             <IconButton
               icon={<RenameIcon />}
               bordered
               onClick={renameSession}
             />
-          </div>
+          </div> */}
           <div className="window-action-button">
             <IconButton
               icon={<ExportIcon />}
