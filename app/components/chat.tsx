@@ -644,7 +644,7 @@ export function Chat() {
           </div>
           <div
             className="window-action-button"
-            style={{ visibility: "hidden" }}
+            // style={{ visibility: "hidden" }}
           >
             <IconButton
               icon={<RenameIcon />}
