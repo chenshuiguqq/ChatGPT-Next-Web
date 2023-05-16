@@ -651,6 +651,7 @@ export function Chat() {
               bordered
               onClick={renameSession}
             />
+            
           </div> */}
           <div className="window-action-button">
             <IconButton
