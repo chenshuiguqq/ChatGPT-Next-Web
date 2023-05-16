@@ -11,7 +11,7 @@ const vi: LocaleType = {
     ChatItemCount: (count: number) => `${count} tin nhắn`,
   },
   Chat: {
-    SubTitle: (count: number) => `${count} tin nhắn với ChatGPT`,
+    SubTitle: (count: number) => `${count} tin nhắn với AI`,
     Actions: {
       ChatList: "Xem danh sách chat",
       CompressedHistory: "Nén tin nhắn trong quá khứ",
