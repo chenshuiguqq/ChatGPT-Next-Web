@@ -14,6 +14,7 @@ const TIME_OUT_MS = 60000;
 
 const makeRequestParam = (
   messages: Message[],
+  contextMsg: string,
   options?: {
     stream?: boolean;
     overrideModel?: ModelType;
@@ -22,6 +23,8 @@ const makeRequestParam = (
   let sendMessages = messages.map((v) => ({
     role: v.role,
     content: v.content,
+
+    //content: v.role == 'user' ? contextMsg : v.content,
   }));
 
   const modelConfig = {
@@ -144,9 +147,10 @@ export async function requestUsage() {
     subscription: total.hard_limit_usd,
   };
 }
-
+// let context = "";
 export async function requestChatStream(
   messages: Message[],
+  contextMsg: string,
   options?: {
     modelConfig?: ModelConfig;
     overrideModel?: ModelType;
@@ -155,7 +159,8 @@ export async function requestChatStream(
     onController?: (controller: AbortController) => void;
   },
 ) {
-  const req = makeRequestParam(messages, {
+  // context = contextMsg
+  const req = makeRequestParam(messages, contextMsg, {
     stream: true,
     overrideModel: options?.overrideModel,
   });

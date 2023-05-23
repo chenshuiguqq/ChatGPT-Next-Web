@@ -322,7 +322,7 @@ export const useChatStore = create<ChatStore>()(
         USER QUESTION: 
         ${query}  
         `;
-        userMessage.content = message;
+        // userMessage.content = message;
         // const userContextMessage: Message = createMessage({
         //   role: "user",
         //   content: message,
@@ -342,7 +342,7 @@ export const useChatStore = create<ChatStore>()(
 
         // make request
         console.log("[User Input] ", sendMessages);
-        requestChatStream(sendMessages, {
+        requestChatStream(sendMessages, "fasfsd", {
           onMessage(content, done) {
             let ans_prehandle = "";
             // stream response
