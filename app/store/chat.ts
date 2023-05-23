@@ -322,16 +322,15 @@ export const useChatStore = create<ChatStore>()(
         USER QUESTION: 
         ${query}  
         `;
-        const userContextMessage: Message = createMessage({
-          role: "user",
-          content: message,
-        });
+        userMessage.content = message;
+        // const userContextMessage: Message = createMessage({
+        //   role: "user",
+        //   content: message,
+        // });
 
         // get recent messages
         const recentMessages = get().getMessagesWithMemory();
-        const sendMessages = recentMessages
-          .concat(systemMessage)
-          .concat(userContextMessage);
+        const sendMessages = recentMessages.concat(systemMessage);
         const sessionIndex = get().currentSessionIndex;
         const messageIndex = get().currentSession().messages.length + 1;
 
