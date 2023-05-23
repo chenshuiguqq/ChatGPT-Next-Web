@@ -15,6 +15,9 @@ import { ModelType } from "./config";
 import { createEmptyMask, Mask } from "./mask";
 import { StoreKey } from "../constant";
 
+import { createClient } from "@supabase/supabase-js";
+import { supabaseClient } from "../components/embeddings-supabase";
+
 export type Message = ChatCompletionResponseMessage & {
   date: string;
   streaming?: boolean;
@@ -239,6 +242,69 @@ export const useChatStore = create<ChatStore>()(
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
 
+        const query = "" + content;
+
+        // OpenAI recommends replacing newlines with spaces for best results
+        const input = query.replace(/\n/g, " ");
+        // console.log("input: ", input);
+
+        const apiKey = "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"; ///process.env.OPENAI_API_KEY;
+
+        const apiURL = "https://api.openai.com"; // process.env.OPENAI_PROXY == "" ? "https://api.openai.com" : process.env.OPENAI_PROXY;
+
+        const embeddingResponse = await fetch(apiURL + "/v1/embeddings", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            input,
+            model: "text-embedding-ada-002",
+          }),
+        });
+
+        const embeddingData = await embeddingResponse.json();
+        const [{ embedding }] = embeddingData.data;
+        // console.log("embedding: ", embedding);
+
+        const { data: documents, error } = await supabaseClient.rpc(
+          "match_simejichat",
+          {
+            query_embedding: embedding,
+            similarity_threshold: 0.78, // Choose an appropriate threshold for your data
+            match_count: 2, // Choose the number of matches
+          },
+        );
+        let contextText = "";
+
+        // console.log("documents: ", documents);
+        // const len = documents.length;
+        // Concat matched documents
+        if (documents) {
+          for (let i = 0; i < documents.length; i++) {
+            const document = documents[i];
+            const content = document.content;
+            const url = document.url;
+            console.log("index: ", i);
+            console.log(content);
+            console.log(url);
+            // Limit context to max 1500 tokens (configurable)
+            // if (tokenCount > 1500) {
+            //   break;
+            // }
+
+            contextText += `${content.trim()}\nSOURCE: ${url}\n---\n`;
+          }
+        }
+
+        const systemContent = `你充当一个广告运营专员的角色，需要根据客户的问题按照CONTEXT的模板做出回答。当给予“CONTEXT”时，您必须严格按照CONTEXT中运营专员的的模板进行回答，具体aid的前面必须加上“--”，后面必须加上“---”，以及{amount}、{price}占位符，最后再给出一句工作方面的祝福语，并始终以markdown格式输出您的答案。`; //用严肃（输出用"话术1"）和客气（输出用"话术2"）两种态度给出两种回答，
+        const systemMessage: Message = createMessage({
+          role: "system",
+          content: systemContent,
+        });
+
+        // content = contextText;
         const userMessage: Message = createMessage({
           role: "user",
           content,
@@ -251,9 +317,21 @@ export const useChatStore = create<ChatStore>()(
           model: modelConfig.model,
         });
 
+        const message = `
+        CONTEXT : ${contextText}
+        USER QUESTION: 
+        ${query}  
+        `;
+        const userContextMessage: Message = createMessage({
+          role: "user",
+          content: message,
+        });
+
         // get recent messages
         const recentMessages = get().getMessagesWithMemory();
-        const sendMessages = recentMessages.concat(userMessage);
+        const sendMessages = recentMessages
+          .concat(systemMessage)
+          .concat(userContextMessage);
         const sessionIndex = get().currentSessionIndex;
         const messageIndex = get().currentSession().messages.length + 1;
 
@@ -267,19 +345,161 @@ export const useChatStore = create<ChatStore>()(
         console.log("[User Input] ", sendMessages);
         requestChatStream(sendMessages, {
           onMessage(content, done) {
+            let ans_prehandle = "";
             // stream response
             if (done) {
+              console.log("done" + content);
               botMessage.streaming = false;
+              let output = "";
+              for (let i = 0; i < sendMessages.length; i++) {
+                const message = sendMessages[i];
+                output += message.content + "~~~~~~~~";
+                // if (message.role === "assistant") {
+                //   ans_prehandle += message.content;
+                //   botMessage.content = ans_prehandle;
+                //   break;
+                // }
+              }
               botMessage.content = content;
+              ans_prehandle = ans_prehandle + content;
               get().onNewMessage(botMessage);
               ControllerPool.remove(
                 sessionIndex,
                 botMessage.id ?? messageIndex,
               );
+
+              const query = ans_prehandle;
+
+              // OpenAI recommends replacing newlines with spaces for best results
+              let input = query.replace(/\n/g, " ");
+              // console.log("input: ", input);
+              const regex = /--(.*?)---/g;
+              let match_aids: string[] = [];
+              let match_aids_origin: string[] = [];
+              let match = regex.exec(input);
+
+              // if (match != null) {
+              //   return new Response(match[1]);
+              // }
+              while (match !== null) {
+                match_aids_origin.push(match[0]);
+                match_aids.push(match[1]);
+                console.log(match[1]); // 输出 test
+                match = regex.exec(input);
+              }
+
+              const no_price_text = "无竞价信息";
+              let contextText = no_price_text;
+              if (match_aids.length == 0) {
+                // botMessage.content = no_price_text;
+              } else {
+                const func = async () => {
+                  const { data: documents, error } = await supabaseClient
+                    .from("ad_info")
+                    .select("*"); //.eq('aid',match_aids[1]);
+                  if (error) console.error(error);
+
+                  if (documents == null) {
+                    botMessage.content = "document为空";
+                  } else {
+                    // console.log("documents: ", documents);
+                    // const infos  = documents as Data[];
+                    const len = documents.length;
+
+                    // Concat matched documents
+                    let aids = "";
+                    let has_result = false;
+                    if (documents) {
+                      for (
+                        let m_index = 0;
+                        m_index < match_aids.length;
+                        m_index++
+                      ) {
+                        for (let i = 0; i < documents.length; i++) {
+                          const document = documents[i];
+
+                          const aid = document.aid as string;
+                          const aidStr = match_aids[m_index] as string;
+                          const aid_origin = match_aids_origin[
+                            m_index
+                          ] as string;
+                          aids += `${aid}:${aidStr}  \n`;
+                          if (aid == aidStr) {
+                            // index = m_index;
+                            aids += `-----match-----${aid}:${aidStr}  \n`;
+
+                            const amount_from = document.amount_from;
+                            const amount_to = document.amount_to;
+                            const price = document.price;
+
+                            input = input.replace(aid_origin, aidStr);
+                            input = input.replace(
+                              "{amount}",
+                              `${amount_from}-${amount_to}`,
+                            );
+                            input = input.replace("{price}", `${price}`);
+
+                            has_result = true;
+                          }
+                        }
+                      }
+
+                      if (has_result) {
+                        botMessage.content = input;
+                        set(() => ({}));
+                        return;
+                      }
+                    }
+                    if (!has_result) {
+                      botMessage.content =
+                        `这是调试信息：len: ${len}${aids}` +
+                        input +
+                        "===" +
+                        match_aids_origin[0] +
+                        "===" +
+                        match_aids[0];
+                    }
+                  }
+                };
+                func();
+              }
+              // set(() => ({}));
             } else {
-              botMessage.content = content;
-              set(() => ({}));
+              console.log(content);
+              // botMessage.content = content;
+              ans_prehandle = ans_prehandle + content;
+              // set(() => ({}));
             }
+            // ans_prehandle = botMessage.content;
+            // console.info("----------------ANSWER: " + ans_prehandle);
+            // // if (ans_prehandle.indexOf("--") < 0) {
+            //   botMessage.content = ans_prehandle
+            // }
+            //------------------
+
+            // const response_info = await fetch("./getInfo", {
+            //   method: "POST",
+            //   headers: {
+            //     "Content-Type": "application/json"
+            //   },
+            //   body: JSON.stringify({
+            //     ans_prehandle
+            //   })
+            // });
+            // console.log("Edge function returned.");
+
+            // if (!response_info.ok) {
+            //   throw new Error(response_info.statusText);
+            // }
+
+            // botMessage.content = contextText;
+
+            // This data is a string
+            // const res_info = response_info.body;
+            // const info = res_info.;
+            // if (res_info == null) {
+            //   return;
+            // }
           },
           onError(error, statusCode) {
             const isAborted = error.message.includes("aborted");

@@ -406,11 +406,33 @@ export function Chat() {
   const [userInput, setUserInput] = useState("");
   const [beforeInput, setBeforeInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [seconds, setSeconds] = useState(0);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
+
+  let intervalId: string | number | NodeJS.Timer | null | undefined = null;
+  // let seconds = 0;
+  useEffect(() => {
+    if (isLoading) {
+      setSeconds(0);
+      intervalId = setInterval(() => {
+        setSeconds((prev) => prev + 1);
+        console.log("do something every 1 second");
+      }, 1000);
+    } else if (intervalId) {
+      clearInterval(intervalId);
+      setSeconds(0);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isLoading]);
 
   const onChatBodyScroll = (e: HTMLElement) => {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 100;
@@ -724,8 +746,8 @@ export function Chat() {
                 </div>
                 {showTyping && (
                   <div className={styles["chat-message-status"]}>
-                    {Locale.Chat.Typing}
-                  </div>
+                    运营专员答复中，用时${seconds}秒。。
+                  </div> ////{Locale.Chat.Typing},
                 )}
                 <div className={styles["chat-message-item"]}>
                   {showActions && (
