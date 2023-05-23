@@ -248,7 +248,7 @@ export const useChatStore = create<ChatStore>()(
         const input = query.replace(/\n/g, " ");
         // console.log("input: ", input);
 
-        const apiKey = "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"; ///process.env.OPENAI_API_KEY;
+        const apiKey = "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"; ///process.env.OPENAI_API_KEY;
 
         const apiURL = "https://api.openai.com"; // process.env.OPENAI_PROXY == "" ? "https://api.openai.com" : process.env.OPENAI_PROXY;
 
