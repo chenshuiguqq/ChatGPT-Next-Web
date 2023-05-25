@@ -586,17 +586,18 @@ export function Chat() {
         : [],
     )
     .concat(
-      userInput.length > 0 && config.sendPreviewBubble
-        ? [
-            {
-              ...createMessage({
-                role: "user",
-                content: userInput,
-              }),
-              preview: true,
-            },
-          ]
-        : [],
+      // userInput.length > 0 && config.sendPreviewBubble
+      //   ? [
+      //       {
+      //         ...createMessage({
+      //           role: "user",
+      //           content: userInput,
+      //         }),
+      //         preview: true,
+      //       },
+      //     ]
+      //   : 
+        [],
     );
 
   const [showPromptModal, setShowPromptModal] = useState(false);
