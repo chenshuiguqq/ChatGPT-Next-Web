@@ -248,6 +248,25 @@ export const useChatStore = create<ChatStore>()(
         const input = query.replace(/\n/g, " ");
         // console.log("input: ", input);
 
+        // content = contextText;
+        const userMessage: Message = createMessage({
+          role: "user",
+          content,
+        });
+
+        const botMessage: Message = createMessage({
+          role: "assistant",
+          streaming: true,
+          id: userMessage.id! + 1,
+          model: modelConfig.model,
+        });
+
+        // save user's and bot's message
+        get().updateCurrentSession((session) => {
+          session.messages.push(userMessage);
+          session.messages.push(botMessage);
+        });
+
         const apiKey = "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"; ///process.env.OPENAI_API_KEY;
 
         const apiURL = "https://api.openai.com"; // process.env.OPENAI_PROXY == "" ? "https://api.openai.com" : process.env.OPENAI_PROXY;
@@ -298,23 +317,10 @@ export const useChatStore = create<ChatStore>()(
           }
         }
 
-        const systemContent = `你充当一个广告运营专员的角色，需要根据客户的问题按照CONTEXT的模板做出回答。当给予“CONTEXT”时，您必须严格按照CONTEXT中运营专员的的模板进行回答，具体aid的前面必须加上“--”，后面必须加上“---”，以及{amount}、{price}占位符，最后再给出一句工作方面的祝福语，并始终以markdown格式输出您的答案。`; //用严肃（输出用"话术1"）和客气（输出用"话术2"）两种态度给出两种回答，
+        const systemContent = `你充当一个广告运营专员的角色，需要根据客户的问题按照CONTEXT的模板做出回答。当给予“CONTEXT”时，您必须严格按照CONTEXT中运营专员的的模板直接进行回答，不要带抱歉相关的话，"包"或"单子"也是aid, 以及{amount}、{price}占位符，每个aid单独一行输出。最后再给出一句工作方面的祝福语，并始终以markdown格式输出您的答案。`; //用严肃（输出用"话术1"）和客气（输出用"话术2"）两种态度给出两种回答，
         const systemMessage: Message = createMessage({
           role: "system",
           content: systemContent,
-        });
-
-        // content = contextText;
-        const userMessage: Message = createMessage({
-          role: "user",
-          content,
-        });
-
-        const botMessage: Message = createMessage({
-          role: "assistant",
-          streaming: true,
-          id: userMessage.id! + 1,
-          model: modelConfig.model,
         });
 
         const message = `
@@ -322,28 +328,27 @@ export const useChatStore = create<ChatStore>()(
         USER QUESTION: 
         ${query}  
         `;
-        const userContextMessage: Message = createMessage({
-          role: "user",
-          content: message,
-        });
+        // const userContextMessage: Message = createMessage({
+        //   role: "user",
+        //   content: message,
+        // });
 
         // get recent messages
         const recentMessages = get().getMessagesWithMemory();
-        const sendMessages = recentMessages
-          .concat(systemMessage)
-          .concat(userContextMessage);
+        const sendMessages = recentMessages.concat(systemMessage);
+        // .concat(userContextMessage);
         const sessionIndex = get().currentSessionIndex;
         const messageIndex = get().currentSession().messages.length + 1;
 
         // save user's and bot's message
-        get().updateCurrentSession((session) => {
-          session.messages.push(userMessage);
-          session.messages.push(botMessage);
-        });
+        // get().updateCurrentSession((session) => {
+        //   // session.messages.push(userMessage);
+        //   session.messages.push(botMessage);
+        // });
 
         // make request
         console.log("[User Input] ", sendMessages);
-        requestChatStream(sendMessages, {
+        requestChatStream(sendMessages, message, {
           onMessage(content, done) {
             let ans_prehandle = "";
             // stream response
@@ -360,7 +365,7 @@ export const useChatStore = create<ChatStore>()(
                 //   break;
                 // }
               }
-              botMessage.content = content;
+              // botMessage.content = content;
               ans_prehandle = ans_prehandle + content;
               get().onNewMessage(botMessage);
               ControllerPool.remove(
@@ -372,26 +377,37 @@ export const useChatStore = create<ChatStore>()(
 
               // OpenAI recommends replacing newlines with spaces for best results
               let input = query.replace(/\n/g, " ");
-              // console.log("input: ", input);
-              const regex = /--(.*?)---/g;
-              let match_aids: string[] = [];
-              let match_aids_origin: string[] = [];
-              let match = regex.exec(input);
 
-              // if (match != null) {
-              //   return new Response(match[1]);
+              // let match_aids: string[] = [];
+              // let match_aids_origin: string[] = [];
+              // const regex = /^[^.]+(\.[^.]+)+|^\d{6,}$/;
+              // let match = regex.exec(input);
+              // while (match !== null) {
+              //   match_aids_origin.push(match[0]);
+              //   match_aids.push(match[1]);
+              //   console.log(match[1]); // 输出 test
+              //   match = regex.exec(input);
               // }
-              while (match !== null) {
-                match_aids_origin.push(match[0]);
-                match_aids.push(match[1]);
-                console.log(match[1]); // 输出 test
-                match = regex.exec(input);
-              }
+
+              console.log("input: ", input);
+              const regex = /(\b\d+\b)|(\b\w+\.\w+(\.\w+)+\b)/g; //  /--(.*?)---/g;
+              // let match_aids: string[] = [];
+              // let match_aids_origin: string[] = [];
+              // let match = regex.exec(input);
+              // while (match !== null) {
+              //   match_aids_origin.push(match[0]);
+              //   match_aids.push(match[1]);
+              //   console.log(match[1]); // 输出 test
+              //   match = regex.exec(input);
+              // }
+
+              let match_aids: string[] | null = input.match(regex);
 
               const no_price_text = "无竞价信息";
               let contextText = no_price_text;
-              if (match_aids.length == 0) {
-                // botMessage.content = no_price_text;
+              if (!match_aids || match_aids.length === 0) {
+                botMessage.content = `match_aids.length == 0\n${input}\n${message}`;
+                set(() => ({}));
               } else {
                 const func = async () => {
                   const { data: documents, error } = await supabaseClient
@@ -409,55 +425,65 @@ export const useChatStore = create<ChatStore>()(
                     // Concat matched documents
                     let aids = "";
                     let has_result = false;
-                    if (documents) {
+                    let input_origin = input;
+                    if (documents && match_aids) {
                       for (
                         let m_index = 0;
                         m_index < match_aids.length;
                         m_index++
                       ) {
+                        let m_index_match = false;
                         for (let i = 0; i < documents.length; i++) {
                           const document = documents[i];
 
                           const aid = document.aid as string;
                           const aidStr = match_aids[m_index] as string;
-                          const aid_origin = match_aids_origin[
-                            m_index
-                          ] as string;
                           aids += `${aid}:${aidStr}  \n`;
-                          if (aid == aidStr) {
+                          if (aid === aidStr) {
+                            m_index_match = true;
                             // index = m_index;
                             aids += `-----match-----${aid}:${aidStr}  \n`;
 
                             const amount_from = document.amount_from;
                             const amount_to = document.amount_to;
                             const price = document.price;
-
-                            input = input.replace(aid_origin, aidStr);
+                            //由于在展示那里是{amount1}和{amount2}这样的，所以需要转换+1
+                            const realIndex = m_index + 1;
                             input = input.replace(
                               "{amount}",
                               `${amount_from}-${amount_to}`,
                             );
+                            input = input.replace(
+                              `{amount${realIndex}}`,
+                              `${amount_from}-${amount_to}`,
+                            );
                             input = input.replace("{price}", `${price}`);
+                            input = input.replace(
+                              `{price${realIndex}}`,
+                              `${price}`,
+                            );
 
                             has_result = true;
                           }
                         }
+                        if (!m_index_match) {
+                          input = input.replace("{amount}", `无`);
+                          input = input.replace("{price}", `无`);
+                        }
                       }
+                      input = input.replaceAll("{amount}", `无`);
+                      input = input.replaceAll("{price}", `无`);
 
                       if (has_result) {
-                        botMessage.content = input;
+                        botMessage.content =
+                          // `has_result 这是调试信息：len: ${len}\nmatch_len:${match_aids.length}\n${aids}\n${message}\n${input_origin}\n${input}`; //
+                          botMessage.content = input;
                         set(() => ({}));
                         return;
                       }
                     }
                     if (!has_result) {
-                      botMessage.content =
-                        `这是调试信息：len: ${len}${aids}` +
-                        input +
-                        "===" +
-                        match_aids_origin[0] +
-                        "===" +
-                        match_aids[0];
+                      botMessage.content = `!has_result 这是调试信息：len: ${len}${aids}\n${input_origin}\n${input}`;
                     }
                   }
                 };
@@ -663,6 +689,7 @@ export const useChatStore = create<ChatStore>()(
               content: Locale.Store.Prompt.Summarize,
               date: "",
             }),
+            "",
             {
               overrideModel: "gpt-3.5-turbo",
               onMessage(message, done) {

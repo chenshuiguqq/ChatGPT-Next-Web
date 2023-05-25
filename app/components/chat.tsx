@@ -595,28 +595,29 @@ export function Chat() {
   const messages = context
     .concat(session.messages as RenderMessage[])
     .concat(
-      isLoading
-        ? [
-            {
-              ...createMessage({
-                role: "assistant",
-                content: "……",
-              }),
-              preview: true,
-            },
-          ]
-        : [],
+      // isLoading
+      //   ? [
+      //       {
+      //         ...createMessage({
+      //           role: "assistant",
+      //           content: "……",
+      //         }),
+      //         preview: true,
+      //       },
+      //     ]
+      //   :
+      [],
     )
     .concat(
       userInput.length > 0 && config.sendPreviewBubble
         ? [
-            {
-              ...createMessage({
-                role: "user",
-                content: userInput,
-              }),
-              preview: true,
-            },
+            // {
+            //   ...createMessage({
+            //     role: "user",
+            //     content: userInput,
+            //   }),
+            //   preview: true,
+            // },
           ]
         : [],
     );
