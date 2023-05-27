@@ -139,7 +139,7 @@ export const useAppConfig = create<ChatConfigStore>()(
         state.modelConfig.sendMemory = true;
         state.modelConfig.historyMessageCount = 4;
         state.modelConfig.compressMessageLengthThreshold = 1000;
-        state.dontShowMaskSplashScreen = false;
+        state.dontShowMaskSplashScreen = true;
 
         return state;
       },

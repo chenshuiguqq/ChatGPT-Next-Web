@@ -453,7 +453,7 @@ export function Settings() {
             ></input>
           </ListItem> */}
 
-          <ListItem
+          {/* <ListItem
             title={Locale.Settings.Mask.Title}
             subTitle={Locale.Settings.Mask.SubTitle}
           >
@@ -468,7 +468,7 @@ export function Settings() {
                 )
               }
             ></input>
-          </ListItem>
+          </ListItem> */}
         </List>
 
         {/* <List>

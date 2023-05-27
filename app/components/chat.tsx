@@ -379,14 +379,14 @@ export function ChatActions(props: {
         <PromptIcon />
       </div>
 
-      <div
+      {/* <div
         className={`${chatStyle["chat-input-action"]} clickable`}
         onClick={() => {
           navigate(Path.Masks);
         }}
       >
         <MaskIcon />
-      </div>
+      </div> */}
     </div>
   );
 }
