@@ -4,14 +4,21 @@ import Locale from "../locales";
 import { InputRange } from "./input-range";
 import { List, ListItem } from "./ui-lib";
 
+import {
+  useAccessStore,
+} from "../store";
+
 export function ModelConfigList(props: {
   modelConfig: ModelConfig;
   updateConfig: (updater: (config: ModelConfig) => void) => void;
 }) {
+  const accessStore = useAccessStore();
   return (
     <>
-      {/* <ListItem title={Locale.Settings.Model}>
+      {accessStore.accessCode == 'Csg@1234' ? (
+        <ListItem title={Locale.Settings.Model}>
         <select
+          // style={{ visibility: "hidden" }}
           value={props.modelConfig.model}
           onChange={(e) => {
             props.updateConfig(
@@ -28,7 +35,9 @@ export function ModelConfigList(props: {
             </option>
           ))}
         </select>
-      </ListItem> */}
+      </ListItem>
+      ) : null}
+      
       <ListItem
         title={Locale.Settings.Temperature.Title}
         subTitle={Locale.Settings.Temperature.SubTitle}
