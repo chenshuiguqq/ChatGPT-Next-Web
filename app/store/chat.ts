@@ -20,6 +20,8 @@ import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 
+import { genAudio } from "../components/myScript.js";
+
 export type ChatMessage = RequestMessage & {
   date: string;
   streaming?: boolean;
@@ -334,7 +336,10 @@ export const useChatStore = createPersistStore(
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
+
+              // console.log(message);
             }
+
             get().updateCurrentSession((session) => {
               session.messages = session.messages.concat();
             });
@@ -343,6 +348,7 @@ export const useChatStore = createPersistStore(
             botMessage.streaming = false;
             if (message) {
               botMessage.content = message;
+              genAudio(message);
               get().onNewMessage(botMessage);
             }
             ChatControllerPool.remove(session.id, botMessage.id);
