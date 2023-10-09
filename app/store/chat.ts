@@ -20,7 +20,7 @@ import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 
-import { genAudio } from "../components/myScript.js";
+import { genAudio, showAndroidToast } from "../components/myScript.js";
 
 export type ChatMessage = RequestMessage & {
   date: string;
@@ -328,6 +328,7 @@ export const useChatStore = createPersistStore(
           ]);
         });
 
+        let currIndex = 0;
         // make request
         api.llm.chat({
           messages: sendMessages,
@@ -336,7 +337,15 @@ export const useChatStore = createPersistStore(
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
+              let msgs = message.split(/[，。！？]\s*/);
+              if (msgs.length >= 2 && msgs.length > currIndex + 1) {
+                genAudio(msgs[currIndex]);
+                currIndex++;
+              }
+              // for (let i=0; i<msgs.length; i++){
 
+              // }
+              // genAudio(message);
               // console.log(message);
             }
 
@@ -348,7 +357,6 @@ export const useChatStore = createPersistStore(
             botMessage.streaming = false;
             if (message) {
               botMessage.content = message;
-              genAudio(message);
               get().onNewMessage(botMessage);
             }
             ChatControllerPool.remove(session.id, botMessage.id);

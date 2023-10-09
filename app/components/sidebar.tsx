@@ -162,10 +162,10 @@ export function SideBar(props: { className?: string }) {
         <div className={styles["sidebar-title"]} data-tauri-drag-region>
           Chat With AI
         </div>
-        <p>
+        {/* <p>
           Version: <span id="version"></span>
-        </p>
-        version: {version}
+        </p> */}
+        {/* app version: {version} */}
         <div className={styles["sidebar-sub-title"]}>
           智能聊天机器人，随便问、随便聊！
         </div>
