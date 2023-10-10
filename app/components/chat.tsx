@@ -413,6 +413,7 @@ export function ChatActions(props: {
   const config = useAppConfig();
   const navigate = useNavigate();
   const chatStore = useChatStore();
+  const accessStore = useAccessStore();
 
   // switch themes
   const theme = config.theme;
@@ -509,11 +510,13 @@ export function ChatActions(props: {
         }}
       />
 
-      <ChatAction
-        onClick={() => setShowModelSelector(true)}
-        text={currentModel}
-        icon={<RobotIcon />}
-      />
+      {accessStore.accessCode == "Csg@1234" ? (
+        <ChatAction
+          onClick={() => setShowModelSelector(true)}
+          text={currentModel}
+          icon={<RobotIcon />}
+        />
+      ) : null}
 
       {showModelSelector && (
         <Selector
