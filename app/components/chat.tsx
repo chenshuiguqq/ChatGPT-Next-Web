@@ -481,11 +481,11 @@ export function ChatActions(props: {
         }
       />
 
-      <ChatAction
+      {/* <ChatAction
         onClick={props.showPromptHints}
         text={Locale.Chat.InputActions.Prompt}
         icon={<PromptIcon />}
-      />
+      /> */}
 
       {/* <ChatAction
         onClick={() => {
