@@ -74,7 +74,7 @@ export const DEFAULT_SYSTEM_TEMPLATE = `
 // Current model: {{model}}
 // Current time: {{time}}`;
 
-export const SUMMARIZE_MODEL = "gpt-3.5-turbo";
+export const SUMMARIZE_MODEL = "gpt-3.5-turbo-0125";
 
 export const DEFAULT_MODELS = [
   {
@@ -102,7 +102,7 @@ export const DEFAULT_MODELS = [
   //   available: true,
   // },
   {
-    name: "gpt-3.5-turbo",
+    name: "gpt-3.5-turbo-0125",
     available: true,
   },
   {

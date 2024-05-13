@@ -510,13 +510,13 @@ export function ChatActions(props: {
         }}
       />
 
-      {accessStore.accessCode == "Csg@1234" ? (
+      {/* {accessStore.accessCode == "Csg@1234" ? (
         <ChatAction
           onClick={() => setShowModelSelector(true)}
           text={currentModel}
           icon={<RobotIcon />}
         />
-      ) : null}
+      ) : null} */}
 
       {showModelSelector && (
         <Selector

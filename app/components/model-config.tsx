@@ -14,7 +14,7 @@ export function ModelConfigList(props: {
   const accessStore = useAccessStore();
   return (
     <>
-      {accessStore.accessCode == "Csg@1234" ? (
+      {/* {accessStore.accessCode == "Csg@1234" ? (
         <ListItem title={Locale.Settings.Model}>
           <Select
             value={props.modelConfig.model}
@@ -34,7 +34,7 @@ export function ModelConfigList(props: {
             ))}
           </Select>
         </ListItem>
-      ) : null}
+      ) : null} */}
 
       <ListItem
         title={Locale.Settings.Temperature.Title}
