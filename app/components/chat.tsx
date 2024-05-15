@@ -512,11 +512,11 @@ export function ChatActions(props: {
       />
 
       {/* {accessStore.accessCode == "Csg@1234" ? ( */}
-      <ChatAction
+      {/* <ChatAction
         onClick={() => setShowModelSelector(true)}
         text={currentModel}
         icon={<RobotIcon />}
-      />
+      /> */}
       {/* ) : null} */}
 
       {showModelSelector && (
@@ -1022,6 +1022,10 @@ function _Chat() {
 
   // remember unfinished input
   useEffect(() => {
+    chatStore.updateCurrentSession((session) => {
+      session.mask.modelConfig.model = "gpt-3.5-turbo-0125" as ModelType;
+      session.mask.syncGlobalConfig = false;
+    });
     // try to load from local storage
     const key = UNFINISHED_INPUT(session.id);
     const mayBeUnfinishedInput = localStorage.getItem(key);
