@@ -76,6 +76,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   CHAT_PAGE_SIZE,
+  DEFAULT_MODELS,
   LAST_INPUT_KEY,
   MAX_RENDER_MSG_COUNT,
   Path,
@@ -430,7 +431,7 @@ export function ChatActions(props: {
   const stopAll = () => ChatControllerPool.stopAll();
 
   // switch model
-  const currentModel = chatStore.currentSession().mask.modelConfig.model;
+  const currentModel = DEFAULT_MODELS[0].name; //chatStore.currentSession().mask.modelConfig.model;
   const models = useMemo(
     () =>
       config
@@ -510,13 +511,13 @@ export function ChatActions(props: {
         }}
       />
 
-      {/* {accessStore.accessCode == "Csg@1234" ? (
-        <ChatAction
-          onClick={() => setShowModelSelector(true)}
-          text={currentModel}
-          icon={<RobotIcon />}
-        />
-      ) : null} */}
+      {/* {accessStore.accessCode == "Csg@1234" ? ( */}
+      <ChatAction
+        onClick={() => setShowModelSelector(true)}
+        text={currentModel}
+        icon={<RobotIcon />}
+      />
+      {/* ) : null} */}
 
       {showModelSelector && (
         <Selector

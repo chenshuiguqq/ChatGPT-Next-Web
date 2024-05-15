@@ -110,32 +110,33 @@ export const useAppConfig = createPersistStore(
         return;
       }
 
-      const oldModels = get().models;
-      const modelMap: Record<string, LLMModel> = {};
+      // const oldModels = get().models;
+      // const modelMap: Record<string, LLMModel> = {};
 
-      for (const model of oldModels) {
-        model.available = false;
-        modelMap[model.name] = model;
-      }
+      // for (const model of oldModels) {
+      //   model.available = false;
+      //   modelMap[model.name] = model;
+      // }
 
-      for (const model of newModels) {
-        model.available = true;
-        modelMap[model.name] = model;
-      }
+      // for (const model of newModels) {
+      //   model.available = true;
+      //   modelMap[model.name] = model;
+      // }
 
-      set(() => ({
-        models: Object.values(modelMap),
-      }));
+      // set(() => ({
+      //   models: Object.values(modelMap),
+      // }));
     },
 
     allModels() {
-      const customModels = get()
-        .customModels.split(",")
-        .filter((v) => !!v && v.length > 0)
-        .map((m) => ({ name: m, available: true }));
+      // const customModels = get()
+      //   .customModels.split(",")
+      //   .filter((v) => !!v && v.length > 0)
+      //   .map((m) => ({ name: m, available: true }));
 
-      const models = get().models.concat(customModels);
-      return models;
+      // const models = get().models.concat(customModels);
+      // return models;
+      return get().models;
     },
   }),
   {
