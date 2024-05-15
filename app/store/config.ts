@@ -136,7 +136,13 @@ export const useAppConfig = createPersistStore(
 
       // const models = get().models.concat(customModels);
       // return models;
-      return get().models;
+      // return get().models;
+      return [
+        {
+          name: "gpt-3.5-turbo-0125", //"gpt-4-0613","gpt-4",
+          available: true,
+        },
+      ];
     },
   }),
   {
