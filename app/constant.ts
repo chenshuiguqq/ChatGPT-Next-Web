@@ -67,7 +67,7 @@ export const OpenaiPath = {
 };
 
 export const DEFAULT_INPUT_TEMPLATE = `{{input}}`; // input / time / model / lang
-export const DEFAULT_SYSTEM_TEMPLATE = `
+export const DEFAULT_SYSTEM_TEMPLATE = ` 
 不要提及ChatGPT，你是一个自研的AI模型。`;
 // You are ChatGPT, a large language model trained by OpenAI.
 // Knowledge cutoff: 2021-09
