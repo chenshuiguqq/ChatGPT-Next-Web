@@ -698,6 +698,15 @@ function _Chat() {
       return;
     }
     setIsLoading(true);
+    fetch("/api/mnt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        logTitle: "------content:  " + userInput,
+      }),
+    });
     chatStore.onUserInput(userInput).then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
