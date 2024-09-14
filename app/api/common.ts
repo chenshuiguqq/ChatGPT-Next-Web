@@ -61,6 +61,7 @@ export async function requestOpenai(req: NextRequest) {
   if (DISABLE_GPT4 && req.body) {
     try {
       const clonedBody = await req.text();
+      console.info("------clonedBody：" + clonedBody);
       fetchOptions.body = clonedBody;
 
       const jsonBody = JSON.parse(clonedBody);
